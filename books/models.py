@@ -32,38 +32,7 @@ GENRE_CHOICES = (
 )
 
 
-class Author(models.Model):
-    """
-    Model representing a book author.
-
-    An author can have multiple books associated with them through the 'books' related name.
-    """
-    name = models.CharField(max_length=100, help_text="The author's full name")
-    biography = models.TextField(blank=True, null=True, help_text="The author's biographical information")
-    birth_date = models.DateField(blank=True, null=True, help_text="The author's date of birth")
-    website = models.URLField(blank=True, null=True, help_text="The author's personal or professional website")
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['name']),
-        ]
-
-    def __str__(self):
-        return self.name
-
-
-class Publisher(models.Model):
-    """
-    Model representing a book publisher.
-
-    A publisher can have multiple books associated with them through the 'books' related name.
-    """
-    name = models.CharField(max_length=100, help_text="The publisher's name")
-    website = models.URLField(blank=True, null=True, help_text="The publisher's website")
-    address = models.TextField(blank=True, null=True, help_text="The publisher's physical address")
-
-    def __str__(self):
-        return self.name
+# Author and Publisher models will be added in a later migration
 
 
 class Book(models.Model):
@@ -74,21 +43,9 @@ class Book(models.Model):
     It can have multiple reviews associated with it through the 'reviews' related name.
     """
     title = models.CharField(max_length=200, help_text="The title of the book")
-    slug = models.SlugField(max_length=250, unique=True, blank=True, help_text="URL-friendly version of the title (auto-generated)")
-    author = models.ForeignKey(
-        Author, 
-        on_delete=models.CASCADE, 
-        related_name='books',
-        help_text="The author who wrote this book"
-    )
-    publisher = models.ForeignKey(
-        Publisher, 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True, 
-        related_name='books',
-        help_text="The publisher of this book"
-    )
+    slug = models.SlugField(max_length=250, blank=True, help_text="URL-friendly version of the title (auto-generated)")
+    author = models.CharField(max_length=100, help_text="The author's name")
+    # publisher field will be added in a later migration
     published_date = models.DateField(help_text="The date when the book was published")
     isbn = models.CharField(max_length=13, unique=True, help_text="International Standard Book Number (13 digits)")
     pages = models.IntegerField(
@@ -149,29 +106,3 @@ class Book(models.Model):
         return self.title
 
 
-class Review(models.Model):
-    """
-    Model representing a book review.
-
-    A review is associated with one book and includes a rating and comment.
-    """
-    book = models.ForeignKey(
-        Book, 
-        on_delete=models.CASCADE, 
-        related_name='reviews',
-        help_text="The book being reviewed"
-    )
-    user_name = models.CharField(max_length=100, help_text="Name of the person writing the review")
-    rating = models.IntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(5)],
-        help_text="Rating given to the book (1-5)"
-    )
-    comment = models.TextField(help_text="The review text")
-    created_at = models.DateTimeField(auto_now_add=True, help_text="When the review was created")
-
-    class Meta:
-        unique_together = ('book', 'user_name')
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return f"Review by {self.user_name} for {self.book.title}"
