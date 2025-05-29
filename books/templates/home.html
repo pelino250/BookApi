@@ -12,10 +12,22 @@
     {% for book in books %}
 
         <h1>{{ book.title }}</h1>
-        <p>Author: {{ book.author }}</p>
+        <p>Author: {{ book.author.name }}</p>
+        {% if book.publisher %}
+        <p>Publisher: {{ book.publisher.name }}</p>
+        {% endif %}
         <p>Published: {{ book.published_date }}</p>
         <p>ISBN: {{ book.isbn }}</p>
         <p>Pages: {{ book.pages }}</p>
+        {% if book.genre %}
+        <p>Genre: {{ book.get_genre_display }}</p>
+        {% endif %}
+        {% if book.description %}
+        <p>Description: {{ book.description|truncatewords:30 }}</p>
+        {% endif %}
+        {% if book.cover_image %}
+        <img src="{{ book.cover_image }}" alt="{{ book.title }}" style="max-width: 200px;">
+        {% endif %}
         <hr>
     {% endfor %}
 
