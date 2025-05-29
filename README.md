@@ -58,6 +58,20 @@ This API provides endpoints for managing a book catalog system with the followin
    python manage.py runserver
    ```
 
+## Sample Data
+
+You can populate the database with sample book data using the management command:
+
+```bash
+# Populate with default 10 dummy books
+python manage.py populate_books
+
+# Specify the number of books to create
+python manage.py populate_books --count 50
+```
+
+This will create random book entries with fake data including titles, authors, ISBNs, and other book attributes.
+
 ## API Documentation
 
 The API is fully documented using Swagger and ReDoc. Once the server is running, you can access:
