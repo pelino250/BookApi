@@ -1,15 +1,14 @@
 from django.http import HttpResponse
-from django.shortcuts import render
-from rest_framework import viewsets, filters
+from django.shortcuts import render, get_object_or_404
+from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, IsAdminUser
 from django_filters.rest_framework import DjangoFilterBackend
 
-from books.models import Book, Author, Publisher, Review
+from books.models import Book
 from books.serializers import (
-    BookSerializer, BookListSerializer, AuthorSerializer, 
-    PublisherSerializer, ReviewSerializer
+    BookSerializer, BookListSerializer
 )
 
 
@@ -26,73 +25,57 @@ def home(request):
     Returns:
         Rendered HTML template with the list of books
     """
-    books = Book.objects.select_related('author').all()
+    books = Book.objects.all()
     return render(request, 'home.html', {'books': books})
 
 
-class AuthorViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows authors to be viewed or edited.
-
-    This viewset automatically provides `list`, `create`, `retrieve`,
-    `update` and `destroy` actions.
-
-    Supports filtering by name using the search parameter.
-
-    Example:
-        GET /books/api/authors/?search=tolkien
-    """
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    search_fields = ['name']
-
-
-class PublisherViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows publishers to be viewed or edited.
-
-    This viewset automatically provides `list`, `create`, `retrieve`,
-    `update` and `destroy` actions.
-
-    Supports filtering by name using the search parameter.
-
-    Example:
-        GET /books/api/publishers/?search=penguin
-    """
-    queryset = Publisher.objects.all()
-    serializer_class = PublisherSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['name']
+# Author and Publisher ViewSets will be added back later
 
 
 class BookViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows books to be viewed or edited.
 
-    This viewset automatically provides `list`, `create`, `retrieve`,
-    `update` and `destroy` actions.
+    list:
+        Return a list of all books.
 
-    Additional actions:
-    - `reviews`: Get all reviews for a specific book
+        Query parameters:
+        - search: Search by title, author, or ISBN
+        - language: Filter by language code (e.g., 'en', 'fr')
+        - genre: Filter by genre (e.g., 'fiction', 'sci_fi')
+        - published_date: Filter by publication date
+        - ordering: Order results by specified field (e.g., 'title', '-rating')
 
-    Supports:
-    - Searching by title, author name, or ISBN
-    - Filtering by language, genre, or published date
-    - Ordering by title, published date, or rating
+    create:
+        Create a new book.
+
+    retrieve:
+        Return the details of a specific book.
+
+    update:
+        Update all fields of a specific book.
+
+    partial_update:
+        Update one or more fields of a specific book.
+
+    destroy:
+        Delete a specific book.
+
+    featured:
+        Return a list of featured books (those with high ratings).
+
+    by_genre:
+        Return a list of books filtered by the specified genre.
 
     Examples:
-        GET /books/api/books/?search=django
-        GET /books/api/books/?language=en&genre=fiction
-        GET /books/api/books/?ordering=-rating
-        GET /books/api/books/{slug}/reviews/
+        GET /api/v1/books/?search=django
+        GET /api/v1/books/?language=en&genre=fiction
+        GET /api/v1/books/?ordering=-rating
     """
-    queryset = Book.objects.select_related('author', 'publisher').prefetch_related('reviews').all()
+    queryset = Book.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter]
-    search_fields = ['title', 'author__name', 'isbn']
+    search_fields = ['title', 'author', 'isbn']
     filterset_fields = ['language', 'genre', 'published_date']
     ordering_fields = ['title', 'published_date', 'rating']
     ordering = ['-published_date']
@@ -112,42 +95,78 @@ class BookViewSet(viewsets.ModelViewSet):
             return BookListSerializer
         return BookSerializer
 
-    @action(detail=True, methods=['get'])
-    def reviews(self, request, slug=None):
+    def create(self, request, *args, **kwargs):
         """
-        Retrieve all reviews for a specific book.
-
-        Args:
-            request: The HTTP request object
-            slug: The slug of the book to retrieve reviews for
+        Create a new book with proper status code.
 
         Returns:
-            Response: A list of all reviews for the specified book
-
-        Example:
-            GET /books/api/books/django-for-beginners/reviews/
+            Response: 201 Created on success with the created book data
         """
-        book = self.get_object()
-        reviews = book.reviews.all()
-        serializer = ReviewSerializer(reviews, many=True)
-        return Response(serializer.data)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def update(self, request, *args, **kwargs):
+        """
+        Update a book with proper status code.
+
+        Returns:
+            Response: 200 OK on success with the updated book data
+        """
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        Delete a book with proper status code.
+
+        Returns:
+            Response: 204 No Content on success
+        """
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=['get'])
+    def featured(self, request):
+        """
+        Return a list of featured books (those with high ratings).
+
+        Returns:
+            Response: 200 OK with a list of featured books
+        """
+        featured_books = Book.objects.filter(rating__gte=4.0).order_by('-rating')
+        page = self.paginate_queryset(featured_books)
+        if page is not None:
+            serializer = BookListSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        serializer = BookListSerializer(featured_books, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path='genre/(?P<genre_name>[^/.]+)')
+    def by_genre(self, request, genre_name=None):
+        """
+        Return a list of books filtered by the specified genre.
+
+        Args:
+            genre_name: The genre to filter by
+
+        Returns:
+            Response: 200 OK with a list of books in the specified genre
+        """
+        books = Book.objects.filter(genre=genre_name).order_by('-published_date')
+        page = self.paginate_queryset(books)
+        if page is not None:
+            serializer = BookListSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
+        serializer = BookListSerializer(books, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class ReviewViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows reviews to be viewed or edited.
-
-    This viewset automatically provides `list`, `create`, `retrieve`,
-    `update` and `destroy` actions.
-
-    Supports filtering by book or rating.
-
-    Examples:
-        GET /books/api/reviews/?book=1
-        GET /books/api/reviews/?rating=5
-    """
-    queryset = Review.objects.select_related('book').all()
-    serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['book', 'rating']
+# Review ViewSet will be added back later
