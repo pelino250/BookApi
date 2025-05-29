@@ -62,9 +62,9 @@ This API provides endpoints for managing a book catalog system with the followin
 
 The API is fully documented using Swagger and ReDoc. Once the server is running, you can access:
 
-- **Swagger UI**: [http://localhost:8000/swagger/](http://localhost:8000/swagger/)
-- **ReDoc**: [http://localhost:8000/redoc/](http://localhost:8000/redoc/)
-- **API Schema**: [http://localhost:8000/swagger.json](http://localhost:8000/swagger.json)
+- **Swagger UI**: [http://localhost:8000/swagger/](http://localhost:8000/api/docs/)
+- **ReDoc**: [http://localhost:8000/redoc/](http://localhost:8000/api/docs/redoc/)
+- **API Schema**: [http://localhost:8000/swagger.json](http://localhost:8000/api/docs/swagger.json)
 
 These interactive documentation pages allow you to:
 - Explore all available endpoints
