@@ -78,3 +78,25 @@ curl -X POST http://localhost:8000/books/api/books/ \
     "language": "en"
   }'
 ```
+
+## HTTP Client Testing
+
+This project includes an HTTP client file (`book_api.http`) for testing the API endpoints directly from your IDE if it supports HTTP client functionality (like JetBrains IDEs).
+
+### Setup:
+
+1. Copy `http-client.env.example.json` to `http-client.env.json`
+2. Edit `http-client.env.json` to include your credentials:
+   ```json
+   {
+     "dev": {
+       "host": "http://localhost:8000",
+       "username": "your_username",
+       "password": "your_password",
+       "auth_token": "your_token_after_authentication"
+     }
+   }
+   ```
+3. Use the HTTP client file to send requests to the API endpoints
+
+Note: The `http-client.env.json` file is ignored by git to prevent committing sensitive credentials.
