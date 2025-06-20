@@ -49,7 +49,7 @@ class Book(models.Model):
     published_date = models.DateField(help_text="The date when the book was published")
     isbn = models.CharField(max_length=13, unique=True, help_text="International Standard Book Number (13 digits)")
     pages = models.IntegerField(
-        validators=[MinValueValidator(1)],
+        # validators=[MinValueValidator(1)],
         help_text="Number of pages in the book"
     )
     cover_image = models.URLField(blank=True, null=True, help_text="URL to the book's cover image")
@@ -78,7 +78,7 @@ class Book(models.Model):
         decimal_places=1, 
         blank=True, 
         null=True,
-        validators=[MinValueValidator(0), MaxValueValidator(5)],
+        validators=[MinValueValidator(0.0), MaxValueValidator(5.0)],
         help_text="Average rating of the book (0-5)"
     )
     created_at = models.DateTimeField(auto_now_add=True, help_text="When the book record was created")
