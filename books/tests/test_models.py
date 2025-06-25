@@ -1,8 +1,10 @@
-from django.test import TestCase
-from django.core.exceptions import ValidationError
-from django.utils.text import slugify
-from books.models import Book
 from datetime import date
+
+from django.core.exceptions import ValidationError
+from django.test import TestCase
+from django.utils.text import slugify
+
+from books.models import Book
 
 
 class BookModelTests(TestCase):
@@ -111,7 +113,7 @@ class BookModelTests(TestCase):
             language="en",
             genre="fiction",
         )
-        
+
         books = Book.objects.all()
         self.assertEqual(books[0], book2)  # Newer book should come first
         self.assertEqual(books[1], self.book)

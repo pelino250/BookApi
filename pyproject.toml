@@ -1,0 +1,23 @@
+[tool.ruff]
+# Set the max line length to 88 to be compatible with black
+line-length = 88
+
+# Exclude directories and files that we don't need to check
+exclude = [
+    ".git",
+    "__pycache__",
+    "venv",
+    "build",
+    "dist",
+    "*/migrations/*"
+]
+
+[tool.ruff.lint]
+# Enable the default set of rules (E, F) and specify others you want.
+# 'I' is for isort (import sorting), 'UP' for pyupgrade.
+select = ["E", "F", "W", "I", "UP"]
+
+[tool.ruff.format]
+# This section makes ruff's formatter behave almost identically to black.
+quote-style = "double"
+indent-style = "space"

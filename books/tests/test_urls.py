@@ -1,7 +1,8 @@
 from django.test import TestCase
-from django.urls import reverse, resolve
+from django.urls import resolve, reverse
 from rest_framework.test import APITestCase
-from books.views import home, BookViewSet
+
+from books.views import home
 
 
 class UrlsTests(TestCase):
@@ -13,8 +14,8 @@ class UrlsTests(TestCase):
         """
         Test that the home URL resolves to the home view.
         """
-        url = reverse('home')
-        self.assertEqual(url, '/home/')
+        url = reverse("home")
+        self.assertEqual(url, "/home/")
         resolver = resolve(url)
         self.assertEqual(resolver.func, home)
 
@@ -28,33 +29,33 @@ class ApiUrlsTests(APITestCase):
         """
         Test that the book-list URL resolves to the BookViewSet list action.
         """
-        url = reverse('book-list')
-        self.assertEqual(url, '/api/v1/books/')
-        
+        url = reverse("book-list")
+        self.assertEqual(url, "/api/v1/books/")
+
     def test_book_detail_url_resolves(self):
         """
         Test that the book-detail URL resolves to the BookViewSet retrieve action.
         """
-        url = reverse('book-detail', kwargs={'slug': 'test-book'})
-        self.assertEqual(url, '/api/v1/books/test-book/')
-        
+        url = reverse("book-detail", kwargs={"slug": "test-book"})
+        self.assertEqual(url, "/api/v1/books/test-book/")
+
     def test_book_featured_url_resolves(self):
         """
         Test that the book-featured URL resolves to the BookViewSet featured action.
         """
-        url = reverse('book-featured')
-        self.assertEqual(url, '/api/v1/books/featured/')
-        
+        url = reverse("book-featured")
+        self.assertEqual(url, "/api/v1/books/featured/")
+
     def test_book_by_genre_url_resolves(self):
         """
         Test that the book-by-genre URL resolves to the BookViewSet by_genre action.
         """
-        url = reverse('book-by-genre', kwargs={'genre_name': 'fiction'})
-        self.assertEqual(url, '/api/v1/books/genre/fiction/')
-        
+        url = reverse("book-by-genre", kwargs={"genre_name": "fiction"})
+        self.assertEqual(url, "/api/v1/books/genre/fiction/")
+
     def test_api_token_url_resolves(self):
         """
         Test that the api-token URL resolves correctly.
         """
-        url = reverse('api-token')
-        self.assertEqual(url, '/api/token/')
+        url = reverse("api-token")
+        self.assertEqual(url, "/api/token/")

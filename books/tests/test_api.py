@@ -1,10 +1,12 @@
-from django.urls import reverse
-from django.contrib.auth.models import User
-from rest_framework import status
-from rest_framework.test import APITestCase
-from rest_framework.authtoken.models import Token
-from books.models import Book
 from datetime import date
+
+from django.contrib.auth.models import User
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.authtoken.models import Token
+from rest_framework.test import APITestCase
+
+from books.models import Book
 
 
 class BookAPITests(APITestCase):

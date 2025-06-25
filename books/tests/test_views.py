@@ -1,7 +1,9 @@
-from django.test import TestCase, Client
-from django.urls import reverse
-from books.models import Book
 from datetime import date
+
+from django.test import Client, TestCase
+from django.urls import reverse
+
+from books.models import Book
 
 
 class HomeViewTests(TestCase):
@@ -15,7 +17,7 @@ class HomeViewTests(TestCase):
         """
         self.client = Client()
         self.home_url = reverse("home")
-        
+
         # Create test books
         self.book1 = Book.objects.create(
             title="Test Book 1",
@@ -26,7 +28,7 @@ class HomeViewTests(TestCase):
             language="en",
             genre="fiction",
         )
-        
+
         self.book2 = Book.objects.create(
             title="Test Book 2",
             author="Test Author 2",
@@ -72,7 +74,7 @@ class BookViewSetTests(TestCase):
         Set up test data.
         """
         self.client = Client()
-        
+
         # Create test book
         self.book = Book.objects.create(
             title="Test Book",
@@ -85,7 +87,7 @@ class BookViewSetTests(TestCase):
             description="Test description",
             rating=4.5,
         )
-        
+
         # URLs
         self.book_detail_url = reverse("book-detail", kwargs={"slug": self.book.slug})
 

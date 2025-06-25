@@ -1,12 +1,10 @@
 import random
-from datetime import datetime, timedelta
 from decimal import Decimal
 
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 from faker import Faker
 
-from books.models import Book, LANGUAGE_CHOICES, GENRE_CHOICES
+from books.models import GENRE_CHOICES, LANGUAGE_CHOICES, Book
 
 
 class Command(BaseCommand):
