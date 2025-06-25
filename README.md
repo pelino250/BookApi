@@ -200,14 +200,52 @@ curl -X GET http://localhost:8000/books/api/books/django-for-beginners/reviews/
 ## Development
 
 ### Running Tests
+
+The project includes comprehensive unit tests for models, views, serializers, and management commands. You can run the tests using either Django's test runner or pytest:
+
+#### Using Django's test runner:
 ```bash
 python manage.py test
 ```
+
+#### Using pytest (recommended):
+```bash
+# Run all tests with coverage reporting
+pytest
+
+# Run specific test file
+pytest books/tests/test_models.py
+
+# Run specific test class
+pytest books/tests/test_models.py::BookModelTests
+
+# Run specific test method
+pytest books/tests/test_models.py::BookModelTests::test_book_creation
+```
+
+### Test Coverage
+
+The project is configured to generate test coverage reports using pytest-cov:
+
+```bash
+# Generate coverage report in terminal
+pytest --cov=.
+
+# Generate HTML coverage report
+pytest --cov=. --cov-report=html
+```
+
+After running the HTML coverage report, you can view it by opening `htmlcov/index.html` in your browser.
 
 ### Code Style
 This project follows PEP 8 style guidelines. You can check your code with:
 ```bash
 flake8
+```
+
+You can also use Black for automatic code formatting:
+```bash
+black .
 ```
 
 ## License

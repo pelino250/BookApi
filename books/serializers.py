@@ -17,6 +17,7 @@ class BookSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="book-detail", lookup_field="slug"
     )
+    rating = serializers.FloatField(required=False, allow_null=True)
 
     class Meta:
         model = Book
@@ -53,6 +54,7 @@ class BookListSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="book-detail", lookup_field="slug"
     )
+    rating = serializers.FloatField(required=False, allow_null=True)
 
     class Meta:
         model = Book
