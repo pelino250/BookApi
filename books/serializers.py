@@ -13,22 +13,33 @@ class BookSerializer(serializers.HyperlinkedModelSerializer):
 
     The slug, created_at, and updated_at fields are read-only as they're automatically generated.
     """
+
     url = serializers.HyperlinkedIdentityField(
-        view_name='book-detail',
-        lookup_field='slug'
+        view_name="book-detail", lookup_field="slug"
     )
 
     class Meta:
         model = Book
         fields = [
-            'url', 'id', 'title', 'slug', 'author', 'published_date', 
-            'isbn', 'pages', 'cover_image', 'language', 'genre',
-            'description', 'price', 'rating', 'created_at', 'updated_at'
+            "url",
+            "id",
+            "title",
+            "slug",
+            "author",
+            "published_date",
+            "isbn",
+            "pages",
+            "cover_image",
+            "language",
+            "genre",
+            "description",
+            "price",
+            "rating",
+            "created_at",
+            "updated_at",
         ]
-        read_only_fields = ['slug', 'created_at', 'updated_at']
-        extra_kwargs = {
-            'url': {'lookup_field': 'slug'}
-        }
+        read_only_fields = ["slug", "created_at", "updated_at"]
+        extra_kwargs = {"url": {"lookup_field": "slug"}}
 
 
 class BookListSerializer(serializers.HyperlinkedModelSerializer):
@@ -38,17 +49,22 @@ class BookListSerializer(serializers.HyperlinkedModelSerializer):
     Provides a condensed representation of a book with only essential fields.
     Includes hyperlinks to the book detail view for HATEOAS support.
     """
+
     url = serializers.HyperlinkedIdentityField(
-        view_name='book-detail',
-        lookup_field='slug'
+        view_name="book-detail", lookup_field="slug"
     )
 
     class Meta:
         model = Book
         fields = [
-            'url', 'id', 'title', 'slug', 'author', 'published_date', 
-            'isbn', 'genre', 'rating'
+            "url",
+            "id",
+            "title",
+            "slug",
+            "author",
+            "published_date",
+            "isbn",
+            "genre",
+            "rating",
         ]
-        extra_kwargs = {
-            'url': {'lookup_field': 'slug'}
-        }
+        extra_kwargs = {"url": {"lookup_field": "slug"}}

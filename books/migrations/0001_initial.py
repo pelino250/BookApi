@@ -7,21 +7,45 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Book',
+            name="Book",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('author', models.CharField(max_length=100)),
-                ('published_date', models.DateField()),
-                ('isbn', models.CharField(max_length=13, unique=True)),
-                ('pages', models.IntegerField()),
-                ('cover_image', models.URLField(blank=True, null=True)),
-                ('language', models.CharField(choices=[('en', 'English'), ('es', 'Spanish'), ('fr', 'French'), ('de', 'German'), ('it', 'Italian'), ('pt', 'Portuguese'), ('zh', 'Chinese'), ('ja', 'Japanese'), ('ru', 'Russian')], default='en', max_length=30)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                ("author", models.CharField(max_length=100)),
+                ("published_date", models.DateField()),
+                ("isbn", models.CharField(max_length=13, unique=True)),
+                ("pages", models.IntegerField()),
+                ("cover_image", models.URLField(blank=True, null=True)),
+                (
+                    "language",
+                    models.CharField(
+                        choices=[
+                            ("en", "English"),
+                            ("es", "Spanish"),
+                            ("fr", "French"),
+                            ("de", "German"),
+                            ("it", "Italian"),
+                            ("pt", "Portuguese"),
+                            ("zh", "Chinese"),
+                            ("ja", "Japanese"),
+                            ("ru", "Russian"),
+                        ],
+                        default="en",
+                        max_length=30,
+                    ),
+                ),
             ],
         ),
     ]

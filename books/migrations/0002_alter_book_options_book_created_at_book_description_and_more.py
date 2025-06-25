@@ -8,99 +8,170 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('books', '0001_initial'),
+        ("books", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='book',
-            options={'ordering': ['-published_date']},
+            name="book",
+            options={"ordering": ["-published_date"]},
         ),
         migrations.AddField(
-            model_name='book',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now, help_text='When the book record was created'),
+            model_name="book",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True,
+                default=django.utils.timezone.now,
+                help_text="When the book record was created",
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='book',
-            name='description',
-            field=models.TextField(blank=True, help_text='A summary or description of the book', null=True),
+            model_name="book",
+            name="description",
+            field=models.TextField(
+                blank=True, help_text="A summary or description of the book", null=True
+            ),
         ),
         migrations.AddField(
-            model_name='book',
-            name='genre',
-            field=models.CharField(choices=[('fiction', 'Fiction'), ('non_fiction', 'Non-Fiction'), ('sci_fi', 'Science Fiction'), ('fantasy', 'Fantasy'), ('mystery', 'Mystery'), ('thriller', 'Thriller'), ('romance', 'Romance'), ('biography', 'Biography'), ('history', 'History'), ('self_help', 'Self Help'), ('other', 'Other')], default='fiction', help_text='The genre or category of the book', max_length=30),
+            model_name="book",
+            name="genre",
+            field=models.CharField(
+                choices=[
+                    ("fiction", "Fiction"),
+                    ("non_fiction", "Non-Fiction"),
+                    ("sci_fi", "Science Fiction"),
+                    ("fantasy", "Fantasy"),
+                    ("mystery", "Mystery"),
+                    ("thriller", "Thriller"),
+                    ("romance", "Romance"),
+                    ("biography", "Biography"),
+                    ("history", "History"),
+                    ("self_help", "Self Help"),
+                    ("other", "Other"),
+                ],
+                default="fiction",
+                help_text="The genre or category of the book",
+                max_length=30,
+            ),
         ),
         migrations.AddField(
-            model_name='book',
-            name='price',
-            field=models.DecimalField(blank=True, decimal_places=2, help_text='The retail price of the book', max_digits=10, null=True),
+            model_name="book",
+            name="price",
+            field=models.DecimalField(
+                blank=True,
+                decimal_places=2,
+                help_text="The retail price of the book",
+                max_digits=10,
+                null=True,
+            ),
         ),
         migrations.AddField(
-            model_name='book',
-            name='rating',
-            field=models.DecimalField(blank=True, decimal_places=1, help_text='Average rating of the book (0-5)', max_digits=3, null=True, validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(5)]),
+            model_name="book",
+            name="rating",
+            field=models.DecimalField(
+                blank=True,
+                decimal_places=1,
+                help_text="Average rating of the book (0-5)",
+                max_digits=3,
+                null=True,
+                validators=[
+                    django.core.validators.MinValueValidator(0),
+                    django.core.validators.MaxValueValidator(5),
+                ],
+            ),
         ),
         migrations.AddField(
-            model_name='book',
-            name='slug',
-            field=models.SlugField(blank=True, help_text='URL-friendly version of the title (auto-generated)', max_length=250),
+            model_name="book",
+            name="slug",
+            field=models.SlugField(
+                blank=True,
+                help_text="URL-friendly version of the title (auto-generated)",
+                max_length=250,
+            ),
         ),
         migrations.AddField(
-            model_name='book',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, help_text='When the book record was last updated'),
+            model_name="book",
+            name="updated_at",
+            field=models.DateTimeField(
+                auto_now=True, help_text="When the book record was last updated"
+            ),
         ),
         migrations.AlterField(
-            model_name='book',
-            name='author',
+            model_name="book",
+            name="author",
             field=models.CharField(help_text="The author's name", max_length=100),
         ),
         migrations.AlterField(
-            model_name='book',
-            name='cover_image',
-            field=models.URLField(blank=True, help_text="URL to the book's cover image", null=True),
+            model_name="book",
+            name="cover_image",
+            field=models.URLField(
+                blank=True, help_text="URL to the book's cover image", null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='book',
-            name='isbn',
-            field=models.CharField(help_text='International Standard Book Number (13 digits)', max_length=13, unique=True),
+            model_name="book",
+            name="isbn",
+            field=models.CharField(
+                help_text="International Standard Book Number (13 digits)",
+                max_length=13,
+                unique=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='book',
-            name='language',
-            field=models.CharField(choices=[('en', 'English'), ('es', 'Spanish'), ('fr', 'French'), ('de', 'German'), ('it', 'Italian'), ('pt', 'Portuguese'), ('zh', 'Chinese'), ('ja', 'Japanese'), ('ru', 'Russian')], default='en', help_text='The primary language of the book', max_length=30),
+            model_name="book",
+            name="language",
+            field=models.CharField(
+                choices=[
+                    ("en", "English"),
+                    ("es", "Spanish"),
+                    ("fr", "French"),
+                    ("de", "German"),
+                    ("it", "Italian"),
+                    ("pt", "Portuguese"),
+                    ("zh", "Chinese"),
+                    ("ja", "Japanese"),
+                    ("ru", "Russian"),
+                ],
+                default="en",
+                help_text="The primary language of the book",
+                max_length=30,
+            ),
         ),
         migrations.AlterField(
-            model_name='book',
-            name='pages',
-            field=models.IntegerField(help_text='Number of pages in the book', validators=[django.core.validators.MinValueValidator(1)]),
+            model_name="book",
+            name="pages",
+            field=models.IntegerField(
+                help_text="Number of pages in the book",
+                validators=[django.core.validators.MinValueValidator(1)],
+            ),
         ),
         migrations.AlterField(
-            model_name='book',
-            name='published_date',
-            field=models.DateField(help_text='The date when the book was published'),
+            model_name="book",
+            name="published_date",
+            field=models.DateField(help_text="The date when the book was published"),
         ),
         migrations.AlterField(
-            model_name='book',
-            name='title',
-            field=models.CharField(help_text='The title of the book', max_length=200),
+            model_name="book",
+            name="title",
+            field=models.CharField(help_text="The title of the book", max_length=200),
         ),
         migrations.AddIndex(
-            model_name='book',
-            index=models.Index(fields=['title'], name='books_book_title_d3218d_idx'),
+            model_name="book",
+            index=models.Index(fields=["title"], name="books_book_title_d3218d_idx"),
         ),
         migrations.AddIndex(
-            model_name='book',
-            index=models.Index(fields=['isbn'], name='books_book_isbn_54becd_idx'),
+            model_name="book",
+            index=models.Index(fields=["isbn"], name="books_book_isbn_54becd_idx"),
         ),
         migrations.AddIndex(
-            model_name='book',
-            index=models.Index(fields=['published_date'], name='books_book_publish_649cd8_idx'),
+            model_name="book",
+            index=models.Index(
+                fields=["published_date"], name="books_book_publish_649cd8_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='book',
-            index=models.Index(fields=['genre'], name='books_book_genre_4a7cdf_idx'),
+            model_name="book",
+            index=models.Index(fields=["genre"], name="books_book_genre_4a7cdf_idx"),
         ),
     ]

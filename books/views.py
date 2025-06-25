@@ -3,13 +3,15 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, IsAdminUser
+from rest_framework.permissions import (
+    IsAuthenticatedOrReadOnly,
+    IsAuthenticated,
+    IsAdminUser,
+)
 from django_filters.rest_framework import DjangoFilterBackend
 
 from books.models import Book
-from books.serializers import (
-    BookSerializer, BookListSerializer
-)
+from books.serializers import BookSerializer, BookListSerializer
 
 
 # Create your views here.
@@ -26,7 +28,7 @@ def home(request):
         Rendered HTML template with the list of books
     """
     books = Book.objects.all()
-    return render(request, 'home.html', {'books': books})
+    return render(request, "home.html", {"books": books})
 
 
 # Author and Publisher ViewSets will be added back later
@@ -72,14 +74,19 @@ class BookViewSet(viewsets.ModelViewSet):
         GET /api/v1/books/?language=en&genre=fiction
         GET /api/v1/books/?ordering=-rating
     """
+
     queryset = Book.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend, filters.OrderingFilter]
-    search_fields = ['title', 'author', 'isbn']
-    filterset_fields = ['language', 'genre', 'published_date']
-    ordering_fields = ['title', 'published_date', 'rating']
-    ordering = ['-published_date']
-    lookup_field = 'slug'
+    filter_backends = [
+        filters.SearchFilter,
+        DjangoFilterBackend,
+        filters.OrderingFilter,
+    ]
+    search_fields = ["title", "author", "isbn"]
+    filterset_fields = ["language", "genre", "published_date"]
+    ordering_fields = ["title", "published_date", "rating"]
+    ordering = ["-published_date"]
+    lookup_field = "slug"
 
     def get_serializer_class(self):
         """
@@ -91,7 +98,7 @@ class BookViewSet(viewsets.ModelViewSet):
         Returns:
             Serializer class: BookListSerializer for list action, BookSerializer otherwise
         """
-        if self.action == 'list':
+        if self.action == "list":
             return BookListSerializer
         return BookSerializer
 
@@ -106,7 +113,9 @@ class BookViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
 
     def update(self, request, *args, **kwargs):
         """
@@ -115,7 +124,7 @@ class BookViewSet(viewsets.ModelViewSet):
         Returns:
             Response: 200 OK on success with the updated book data
         """
-        partial = kwargs.pop('partial', False)
+        partial = kwargs.pop("partial", False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
@@ -133,7 +142,7 @@ class BookViewSet(viewsets.ModelViewSet):
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=False, methods=['get'])
+    @action(detail=False, methods=["get"])
     def featured(self, request):
         """
         Return a list of featured books (those with high ratings).
@@ -141,15 +150,19 @@ class BookViewSet(viewsets.ModelViewSet):
         Returns:
             Response: 200 OK with a list of featured books
         """
-        featured_books = Book.objects.filter(rating__gte=4.0).order_by('-rating')
+        featured_books = Book.objects.filter(rating__gte=4.0).order_by("-rating")
         page = self.paginate_queryset(featured_books)
         if page is not None:
-            serializer = BookListSerializer(page, many=True, context={'request': request})
+            serializer = BookListSerializer(
+                page, many=True, context={"request": request}
+            )
             return self.get_paginated_response(serializer.data)
-        serializer = BookListSerializer(featured_books, many=True, context={'request': request})
+        serializer = BookListSerializer(
+            featured_books, many=True, context={"request": request}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get'], url_path='genre/(?P<genre_name>[^/.]+)')
+    @action(detail=False, methods=["get"], url_path="genre/(?P<genre_name>[^/.]+)")
     def by_genre(self, request, genre_name=None):
         """
         Return a list of books filtered by the specified genre.
@@ -160,12 +173,14 @@ class BookViewSet(viewsets.ModelViewSet):
         Returns:
             Response: 200 OK with a list of books in the specified genre
         """
-        books = Book.objects.filter(genre=genre_name).order_by('-published_date')
+        books = Book.objects.filter(genre=genre_name).order_by("-published_date")
         page = self.paginate_queryset(books)
         if page is not None:
-            serializer = BookListSerializer(page, many=True, context={'request': request})
+            serializer = BookListSerializer(
+                page, many=True, context={"request": request}
+            )
             return self.get_paginated_response(serializer.data)
-        serializer = BookListSerializer(books, many=True, context={'request': request})
+        serializer = BookListSerializer(books, many=True, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
