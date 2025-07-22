@@ -1,0 +1,124 @@
+name: 'Staging Deployment'
+
+# Trigger on pushes to staging branch or manual dispatch
+on:
+  push:
+    branches:
+      - staging
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    name: 'Build and Push Docker Image'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7A136FF9F6FB44A8A2518321E33071A9 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_905F6342152A43EAB8C1EFA2ABF447AE }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_807F775833C84DF0AB570A6FDC9F6825 }}
+
+      - name: Login to Azure Container Registry
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build and push Docker image to ACR
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.ACR_LOGIN_SERVER }}/bookapi:${{ github.sha }}
+            ${{ secrets.ACR_LOGIN_SERVER }}/bookapi:staging-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-infrastructure:
+    name: 'Deploy Infrastructure with Terraform'
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7A136FF9F6FB44A8A2518321E33071A9 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_905F6342152A43EAB8C1EFA2ABF447AE }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_807F775833C84DF0AB570A6FDC9F6825 }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Init
+        run: |
+          cd terraform/environments/staging
+          terraform init
+
+      - name: Terraform Apply
+        run: |
+          cd terraform/environments/staging
+          terraform apply -auto-approve -var="docker_image=${{ secrets.ACR_LOGIN_SERVER }}/bookapi:${{ github.sha }}"
+
+  deploy-application:
+    name: 'Deploy Application to Azure App Service'
+    runs-on: ubuntu-latest
+    needs: deploy-infrastructure
+    environment:
+      name: 'Staging'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7A136FF9F6FB44A8A2518321E33071A9 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_905F6342152A43EAB8C1EFA2ABF447AE }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_807F775833C84DF0AB570A6FDC9F6825 }}
+
+      - name: 'Deploy to Azure Web App'
+        uses: azure/webapps-deploy@v3
+        id: deploy-to-webapp
+        with:
+          app-name: 'book-api-staging'
+          slot-name: 'Production'
+          images: ${{ secrets.ACR_LOGIN_SERVER }}/bookapi:${{ github.sha }}
+
+  smoke-tests:
+    name: 'Run Smoke Tests'
+    runs-on: ubuntu-latest
+    needs: deploy-application
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pytest
+
+      - name: Run smoke tests
+        run: |
+          # Simple smoke test to check if the API is responding
+          python -c "import requests, sys; try: response = requests.get('https://book-api-staging.azurewebsites.net/books/api/books/'); print('Smoke test passed!') if response.status_code == 200 else (print(f'Smoke test failed! Status code: {response.status_code}'), sys.exit(1)) except Exception as e: print(f'Smoke test failed with exception: {e}'); sys.exit(1)"
