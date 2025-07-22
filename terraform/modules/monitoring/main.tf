@@ -44,19 +44,21 @@ resource "azurerm_monitor_metric_alert" "high_cpu" {
   name                = "${var.environment}-high-cpu-alert"
   resource_group_name = var.resource_group_name
   scopes              = var.app_service_ids
-  description         = "Alert when CPU usage exceeds 80% for 5 minutes"
+  description         = "Alert when CPU time is high"
+  enabled             = true
+  frequency           = "PT1M"
+  window_size         = "PT5M"
 
   criteria {
     metric_namespace = "Microsoft.Web/sites"
-    metric_name      = "CpuPercentage"
-    aggregation      = "Average"
+    metric_name      = "CpuTime"
+    aggregation      = "Total"
     operator         = "GreaterThan"
-    threshold        = 80
-  }
+    # This threshold represents 80% CPU utilization over 5 minutes for a single-core plan (like S1).
+    # Calculation: 300 seconds (5 minutes) * 0.80 (80%) = 240.
 
-  window_size        = "PT5M"
-  frequency          = "PT1M"
-  severity           = 2
+    threshold        = 240
+  }
 
   action {
     action_group_id = azurerm_monitor_action_group.critical.id
@@ -70,19 +72,20 @@ resource "azurerm_monitor_metric_alert" "high_memory" {
   name                = "${var.environment}-high-memory-alert"
   resource_group_name = var.resource_group_name
   scopes              = var.app_service_ids
-  description         = "Alert when memory usage exceeds 80% for 5 minutes"
+  description         = "Alert when memory usage exceeds 1.4 GB"
+  enabled             = true
+  frequency           = "PT1M"
+  window_size         = "PT5M"
 
   criteria {
     metric_namespace = "Microsoft.Web/sites"
-    metric_name      = "MemoryPercentage"
+    metric_name      = "MemoryWorkingSet"
     aggregation      = "Average"
     operator         = "GreaterThan"
-    threshold        = 80
+    # This threshold represents roughly 80% of the 1.75 GB RAM available to an S1 App Service Plan.
+    # The value is in bytes. 1.4 GB = 1,400,000,000 bytes.
+    threshold        = 1400000000
   }
-
-  window_size        = "PT5M"
-  frequency          = "PT1M"
-  severity           = 2
 
   action {
     action_group_id = azurerm_monitor_action_group.critical.id

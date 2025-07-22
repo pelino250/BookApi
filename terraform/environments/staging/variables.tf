@@ -28,16 +28,10 @@ variable "app_service_name" {
   default     = "book-api-staging-app"
 }
 
-variable "app_service_sku_tier" {
+variable "app_service_sku_name" {
   description = "Tier of the App Service Plan"
   type        = string
-  default     = "Basic"  # Lower tier for staging
-}
-
-variable "app_service_sku_size" {
-  description = "Size of the App Service Plan"
-  type        = string
-  default     = "B1"  # Smaller size for staging
+  default     = "S1"  # Standard tier for supports deployment slots
 }
 
 variable "container_registry_name" {

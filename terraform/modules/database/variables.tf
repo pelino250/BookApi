@@ -17,15 +17,15 @@ variable "postgresql_server_name" {
 }
 
 variable "postgresql_sku_name" {
-  description = "The SKU name for the PostgreSQL server"
+  description = "The SKU name for the PostgreSQL flexible server"
   type        = string
-  default     = "B_Gen5_1"  # Basic tier, Gen5, 1 vCore
+  default     = "B_Standard_B1ms"  # Valid SKU name for flexible server
 }
 
 variable "postgresql_storage_mb" {
   description = "The storage size for the PostgreSQL server in MB"
   type        = number
-  default     = 5120  # 5GB
+  default     = 32768  # 32GB - minimum allowed for flexible server
 }
 
 variable "postgresql_backup_retention_days" {
@@ -90,4 +90,9 @@ variable "tags" {
   description = "Tags to apply to all resources"
   type        = map(string)
   default     = {}
+}
+variable "postgresql_zone" {
+  description = "The zone for the PostgreSQL server"
+  type        = string
+  default     = null  # Default to zone 1
 }

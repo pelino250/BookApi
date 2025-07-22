@@ -16,7 +16,7 @@ terraform {
 
 provider "azurerm" {
   features {}
-  skip_provider_registration = true
+  skip_provider_registration = false
 }
 
 # Import shared backend configuration
@@ -57,6 +57,7 @@ module "database" {
   postgresql_database_name   = var.postgresql_database_name
   postgresql_public_access   = true
   create_private_endpoint    = false
+  postgresql_zone = "2"
   tags                       = var.tags
 }
 
@@ -125,8 +126,7 @@ module "app_service" {
   location                 = azurerm_resource_group.rg.location
   app_service_plan_name    = var.app_service_plan_name
   app_service_name         = var.app_service_name
-  app_service_sku_tier     = var.app_service_sku_tier
-  app_service_sku_size     = var.app_service_sku_size
+  app_service_sku_name     = var.app_service_sku_name
 
   container_registry_url      = module.container_registry.login_server
   container_registry_username = module.container_registry.admin_username

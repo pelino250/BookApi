@@ -100,3 +100,8 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "app_service_sku_name" {
+  description = "The SKU name for the App Service plan (e.g., S1, B1, P1v2)."
+  type        = string
+}
