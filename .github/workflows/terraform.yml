@@ -1,10 +1,15 @@
-name: 'Terraform CI/CD'
+name: 'Terraform Infrastructure'
 
 on:
   push:
     branches:
       - main
+    paths:
+      - 'terraform/**'
   pull_request:
+    paths:
+      - 'terraform/**'
+  workflow_dispatch:
 
 jobs:
   terraform:
@@ -15,31 +20,48 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-#      - name: Azure Login
-#        uses: azure/login@v2
-#        with:
-#            # This is the Azure Service Principal secret that you created
-#            creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7A136FF9F6FB44A8A2518321E33071A9 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_905F6342152A43EAB8C1EFA2ABF447AE }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_807F775833C84DF0AB570A6FDC9F6825 }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          # This is the CLI configuration file that tells Terraform to use Terraform Cloud
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Terraform Format
-        run: terraform fmt -check
+        run: terraform fmt -check -recursive
 
       - name: Terraform Init
-        run: terraform init
+        run: |
+          cd terraform/environments/staging
+          terraform init
 
       - name: Terraform Validate
-        run: terraform validate
+        run: |
+          cd terraform/environments/staging
+          terraform validate
+
+      - name: Set Docker Image Variable
+        id: set-image
+        run: |
+          if [ "${{ github.event_name }}" == "push" ] || [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "DOCKER_IMAGE=${{ secrets.ACR_LOGIN_SERVER }}/bookapi:latest" >> $GITHUB_ENV
+          else
+            echo "DOCKER_IMAGE=${{ secrets.ACR_LOGIN_SERVER }}/bookapi:pr-${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+          fi
 
       - name: Terraform Plan
-        run: terraform plan -input=false
+        run: |
+          cd terraform/environments/staging
+          terraform plan -input=false -var="docker_image=${{ env.DOCKER_IMAGE }}"
 
       - name: Terraform Apply
-        # This step will only run on pushes to the main branch
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve -input=false
+        # This step will only run on pushes to the main branch or manual triggers
+        if: (github.ref == 'refs/heads/main' && github.event_name == 'push') || github.event_name == 'workflow_dispatch'
+        run: |
+          cd terraform/environments/staging
+          terraform apply -auto-approve -input=false -var="docker_image=${{ env.DOCKER_IMAGE }}"
