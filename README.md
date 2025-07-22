@@ -58,6 +58,79 @@ This API provides endpoints for managing a book catalog system with the followin
    python manage.py runserver
    ```
 
+## Docker Setup
+
+### Prerequisites
+
+- Docker
+- Docker Compose
+
+### Using Docker for Development
+
+1. Build and start the containers:
+   ```bash
+   docker-compose up -d
+   ```
+
+2. Access the application at:
+   ```
+   http://localhost:8080
+   ```
+
+3. Run migrations:
+   ```bash
+   docker-compose exec web python manage.py migrate
+   ```
+
+4. Create a superuser:
+   ```bash
+   docker-compose exec web python manage.py createsuperuser
+   ```
+
+5. Run tests:
+   ```bash
+   docker-compose exec web pytest
+   ```
+
+6. Generate test coverage:
+   ```bash
+   docker-compose exec web pytest --cov=.
+   ```
+
+7. Populate sample data:
+   ```bash
+   docker-compose exec web python manage.py populate_books
+   ```
+
+8. View logs:
+   ```bash
+   docker-compose logs -f web
+   ```
+
+9. Stop the containers:
+   ```bash
+   docker-compose down
+   ```
+
+### Docker Configuration
+
+The Docker setup includes:
+
+- **Multi-stage Dockerfile** with build and production stages
+- **Docker Compose** for local development with:
+  - Django application service
+  - PostgreSQL database service
+  - Redis for caching
+  - Volume mounts for development
+
+### Environment Variables
+
+The Docker setup uses environment variables from the `.env` file. In the Docker environment:
+
+- `POSTGRES_HOST` is automatically set to `db` (the database service name)
+- `POSTGRES_PORT` is set to `5432`
+- `DJANGO_DEBUG` is set to `True` for development
+
 ## Sample Data
 
 You can populate the database with sample book data using the management command:
